@@ -1,82 +1,72 @@
 <template>
-  <n-layout has-sider class="h-full">
-    <!-- Full height -->
-    <!-- Sidebar -->
-    <n-layout-sider
-      class="!fixed h-screen left-0 top-0 z-10 transition-all duration-300"
-      bordered
-      collapse-mode="width"
-      :collapsed-width="64"
-      :width="240"
-      :collapsed="collapsed"
-      show-trigger="bar"
-      @collapse="collapsed = true"
-      @expand="collapsed = false"
-    >
-      Menu :D
-      <n-menu
-        :collapsed="collapsed"
+  <n-message-provider>
+    <n-layout has-sider class="main-layout">
+      <!-- Sidebar -->
+      <n-layout-sider
+        bordered
+        collapse-mode="width"
         :collapsed-width="64"
-        :collapsed-icon-size="22"
-        :options="menuOptions"
-        :render-label="renderMenuLabel"
-        :render-icon="renderMenuIcon"
-        :expand-icon="expandIcon"
-      />
-    </n-layout-sider>
+        :width="240"
+        :collapsed="collapsed"
+        show-trigger="bar"
+        @collapse="collapsed = true"
+        @expand="collapsed = false"
+      >
+        <RouterLink to="/" class="logo-link">
+          <img src="/logo.svg" alt="logo" class="logo-img" />
+        </RouterLink>
+        <n-menu
+          :collapsed="collapsed"
+          :collapsed-width="64"
+          :collapsed-icon-size="22"
+          :options="menuOptions"
+          :render-label="renderMenuLabel"
+          :render-icon="renderMenuIcon"
+          :expand-icon="expandIcon"
+        />
+      </n-layout-sider>
 
-    <!-- Main Layout -->
-    <n-space
-      vertical
-      class="w-full p-4 bg-gray-100 !space-y-3 transition-all duration-300 "
-      :style="{ marginLeft: collapsed ? '64px' : '240px' }"
-    >
-      <!-- Take full height of screen minus sider -->
-      <n-flex class="p-4 bg-white rounded-full" justify="space-between">
-        <div>
-          <NInput placeholder="Search" round size="large" />
-        </div>
-        <n-flex justify="justify-center">
-          <NotificationDropdown />
-          <AvatarDropdown />
+      <!-- Main Layout -->
+      <n-space
+        vertical
+        class="main-space"
+        :style="{ marginLeft: collapsed ? '64px' : '240px' }"
+      >
+        <!-- Top Bar -->
+        <n-flex class="top-bar" justify="space-between">
+          <div>
+            <NInput placeholder="Search" round size="large" />
+          </div>
+          <n-flex justify="center" align="center">
+            <NotificationDropdown />
+            <AvatarDropdown />
+          </n-flex>
         </n-flex>
-      </n-flex>
-      <div class="p-4 bg-white min-h-screen rounded-2xl">
-        <RouterView />
-      </div>
-    </n-space>
-  </n-layout>
+
+        <!-- Main Content -->
+        <div class="content">
+          <RouterView />
+        </div>
+      </n-space>
+    </n-layout>
+  </n-message-provider>
 </template>
 
-<script lang="ts">
-import type { MenuOption } from 'naive-ui'
+<script setup lang="ts">
+import { ref, h } from 'vue'
+import { NIcon, type MenuOption } from 'naive-ui'
 import { BookmarkOutline, CaretDownOutline } from '@vicons/ionicons5'
-import { defineComponent, h, ref } from 'vue'
-import { NIcon } from 'naive-ui'
 import AvatarDropdown from '@/components/ui/AvatarDropdown.vue'
 import NotificationDropdown from '@/components/ui/NotificationDropdown.vue'
+import { RouterLink } from 'vue-router'
+
+const collapsed = ref(false)
 
 const menuOptions: MenuOption[] = [
   {
-    label: 'Hear the Wind Sing',
+    label: 'Category',
     key: 'hear-the-wind-sing',
-    href: 'https://en.wikipedia.org/wiki/Hear_the_Wind_Sing',
-  },
-  {
-    label: 'Pinball 1973',
-    key: 'pinball-1973',
-    disabled: true,
-    children: [
-      {
-        label: 'Rat',
-        key: 'rat',
-      },
-    ],
-  },
-  {
-    label: 'A Wild Sheep Chase',
-    key: 'a-wild-sheep-chase',
-    disabled: true,
+    href: '/category',
   },
   {
     label: 'Dance Dance Dance',
@@ -126,29 +116,84 @@ const menuOptions: MenuOption[] = [
   },
 ]
 
-export default defineComponent({
-  components: { NotificationDropdown, AvatarDropdown },
-  setup() {
-    return {
-      menuOptions,
-      collapsed: ref(true),
-      renderMenuLabel(option: MenuOption) {
-        if ('href' in option) {
-          return h('a', { href: option.href, target: '_blank' }, [option.label as string])
-        }
-        return option.label as string
-      },
-      renderMenuIcon(option: MenuOption) {
-        // return render placeholder for indent
-        if (option.key === 'sheep-man') return true
-        // return falsy, don't render icon placeholder
-        if (option.key === 'food') return null
-        return h(NIcon, null, { default: () => h(BookmarkOutline) })
-      },
-      expandIcon() {
-        return h(NIcon, null, { default: () => h(CaretDownOutline) })
-      },
-    }
-  },
-})
+const renderMenuLabel = (option: MenuOption) => {
+  if ('href' in option && option.href) {
+    return h(
+      RouterLink,
+      { to: option.href, class: 'menu-link' },
+      { default: () => option.label as string },
+    )
+  }
+  return option.label as string
+}
+
+const renderMenuIcon = (option: MenuOption) => {
+  if (option.key === 'sheep-man') return true // placeholder
+  if (option.key === 'food') return null // không hiển thị icon
+  return h(NIcon, null, { default: () => h(BookmarkOutline) })
+}
+
+const expandIcon = () => h(NIcon, null, { default: () => h(CaretDownOutline) })
 </script>
+
+<style scoped>
+/* Layout chính */
+.main-layout {
+  height: 100%;
+}
+
+/* Sidebar */
+.n-layout-sider {
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  transition: all 0.3s;
+}
+
+/* Logo */
+.logo-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px; /* hoặc theo chiều cao mong muốn */
+  text-decoration: none;
+}
+
+.logo-img {
+  width: 48px;
+  margin: 8px auto;
+}
+
+/* Main space */
+.main-space {
+  width: 100%;
+  padding: 16px;
+  background-color: #f3f4f6; /* tương đương bg-gray-100 */
+  transition: all 0.3s;
+}
+
+/* Top Bar */
+.top-bar {
+  padding: 8px;
+  background-color: #ffffff;
+  border-radius: 9999px; /* rounded-full */
+}
+
+/* Content */
+.content {
+  padding: 16px;
+  background-color: #ffffff;
+  min-height: 100vh;
+  border-radius: 16px; /* tương đương rounded-2xl */
+}
+
+/* Menu Link */
+.menu-link {
+  color: #3b82f6; /* text-blue-500 */
+  text-decoration: none;
+}
+
+/* Có thể thêm các media query, biến CSS,... tùy theo yêu cầu */
+</style>
