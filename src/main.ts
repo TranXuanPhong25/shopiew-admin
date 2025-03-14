@@ -27,7 +27,8 @@ import {
   NModal,
   NModalProvider,
   NIcon,
-  NMessageProvider
+  NMessageProvider,
+  NH1
 } from 'naive-ui'
 const naive = create({
   components: [
@@ -50,7 +51,8 @@ const naive = create({
     NModal,
     NModalProvider,
     NIcon,
-    NMessageProvider
+    NMessageProvider,
+    NH1
   ],
 })
 

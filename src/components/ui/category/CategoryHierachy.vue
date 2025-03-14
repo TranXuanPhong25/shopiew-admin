@@ -1,7 +1,7 @@
 <template>
   <div class="category-hierarchy">
-    <h2 class="title">Category Hierarchy</h2>
-    <div v-for="category in categories" :key="category.id">
+    <n-h1 >Category Hierarchy</n-h1>
+    <div v-for="category in categories" :key="category.id" :style="{ marginLeft: '-20px' }">
       <CategoryItem :category="category" @add-sub="addSubCategory" @update-category="updateCategory" @delete-category="deleteCategory"/>
     </div>
     <n-button
@@ -104,16 +104,11 @@ const deleteCategory = ({parent,id}:{parent:Category,id:number})=>{
 
 <style scoped>
 .category-hierarchy {
-  padding: 16px;
+  padding: 2px;
   background-color: #ffffff;
   border-radius: 12px;
 }
 
-.title {
-  font-size: 1.125rem; /* text-lg */
-  font-weight: 600; /* font-semibold */
-  margin-bottom: 16px; /* mb-4 */
-}
 
 /* Tùy chỉnh style cho n-button dạng dashed & block */
 .n-button--dashed {
@@ -131,8 +126,8 @@ const deleteCategory = ({parent,id}:{parent:Category,id:number})=>{
   gap: 8px;
 }
 
-/* Ví dụ style cho n-input nếu cần thêm */
-.n-input {
-  /* Thêm các style tùy chỉnh nếu cần */
+.n-h1{
+  font-weight: bold;
 }
+
 </style>

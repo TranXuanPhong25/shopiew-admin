@@ -1,5 +1,5 @@
 <template>
-  <div class="category-item-container" :style="{ marginLeft: `${level * 8}px` }" >
+  <div class="category-item-container" :style="{ marginLeft: `20px` }" >
     <div class="category-header">
       <n-button quaternary size="tiny" @click="collapsed = !collapsed">
         <n-icon>
@@ -19,16 +19,12 @@
       <div v-else class="display-container">
         <span @dblclick="enterEditMode" class="category-name" @click="collapsed =!collapsed">{{ category.name }}</span>
 
-        <n-button @click="enterEditMode" size="tiny">
+        <n-button @click="enterEditMode" size="tiny" quaternary>
           <n-icon>
             <Pencil />
           </n-icon>
         </n-button>
-        <n-button @click="showInput = true" size="tiny" :focusable="false">
-          <n-icon>
-            <Plus/>
-          </n-icon>
-        </n-button>
+
         <n-button @click="showModal=true" size="tiny" class="appear-on-hover" style="display:none" type="error">
           <n-icon>
             <TrashBin/>
@@ -47,6 +43,25 @@
         />
       </div>
     </div>
+
+    <div v-if="category.children && category.children.length && !collapsed">
+      <CategoryItem
+        v-for="child in category.children"
+        :key="child.id"
+        :category="child"
+        :parent="category"
+        @add-sub="handleAddSub"
+        @update-category="handleUpdateCategory"
+        @delete-category="handleDeleteCategory"
+      />
+
+    </div>
+    <n-button @click="showInput = true" size="tiny" :focusable="false" v-if="!collapsed &&!showInput" :style="{ marginLeft: `20px`,marginTop:'8px' }">
+      <n-icon>
+        <Plus/>
+      </n-icon>
+      New
+    </n-button>
     <div v-if="showInput" class="input-container">
       <n-input
         v-model:value="newSubName"
@@ -57,18 +72,6 @@
       />
       <n-button size="tiny" @click="confirmAddSub">OK</n-button>
       <n-button size="tiny" text @click="cancelInput">Hủy</n-button>
-    </div>
-    <div v-if="category.children && category.children.length && !collapsed">
-      <CategoryItem
-        v-for="child in category.children"
-        :key="child.id"
-        :category="child"
-        :level="level + 1"
-        :parent="category"
-        @add-sub="handleAddSub"
-        @update-category="handleUpdateCategory"
-        @delete-category="handleDeleteCategory"
-      />
     </div>
   </div>
 </template>
@@ -84,10 +87,6 @@ const props = defineProps({
   category: {
     type: Object,
     required: true,
-  },
-  level: {
-    type: Number,
-    default: 0,
   },
   parent: {
     type: Object,
@@ -228,7 +227,8 @@ function onNegativeClick() {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 4px;
+  margin-top: 8px;
+  margin-left: 20px;
 }
 
 .caret-collapsed {
