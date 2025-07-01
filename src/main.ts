@@ -3,6 +3,7 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
+import { VueQueryPlugin } from '@tanstack/vue-query'
 import router from './router'
 import {
   // create naive ui
@@ -28,7 +29,8 @@ import {
   NModalProvider,
   NIcon,
   NMessageProvider,
-  NH1
+  NH1, NImage
+
 } from 'naive-ui'
 const naive = create({
   components: [
@@ -52,7 +54,8 @@ const naive = create({
     NModalProvider,
     NIcon,
     NMessageProvider,
-    NH1
+    NH1,
+    NImage
   ],
 })
 
@@ -61,5 +64,15 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(naive)
 app.use(router)
+app.use(VueQueryPlugin, {
+  queryClientConfig: {
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false, // Không tự refetch khi focus lại tab
+        retry: 1, // Retry 1 lần khi fail
+      },
+    },
+  },
+})
 
 app.mount('#app')

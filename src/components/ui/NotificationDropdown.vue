@@ -10,16 +10,17 @@
 
 <script setup lang="ts">
 import { h } from 'vue'
+import type { Component } from 'vue'
 import { NIcon } from 'naive-ui'
 import {
   Pencil as EditIcon,
   LogOutOutline as LogoutIcon,
   PersonCircleOutline as UserIcon,
-  NotificationsOutline as BellIcon
+  NotificationsOutline as BellIcon,
 } from '@vicons/ionicons5'
 
 // Function to render icons inside dropdown
-function renderIcon(icon: any) {
+function renderIcon(icon: Component) {
   return () => h(NIcon, null, { default: () => h(icon) })
 }
 
@@ -28,17 +29,17 @@ const options = [
   {
     label: 'Profile',
     key: 'profile',
-    icon: renderIcon(UserIcon)
+    icon: renderIcon(UserIcon),
   },
   {
     label: 'Edit Profile',
     key: 'editProfile',
-    icon: renderIcon(EditIcon)
+    icon: renderIcon(EditIcon),
   },
   {
     label: 'Logout',
     key: 'logout',
-    icon: renderIcon(LogoutIcon)
-  }
+    icon: renderIcon(LogoutIcon),
+  },
 ]
 </script>

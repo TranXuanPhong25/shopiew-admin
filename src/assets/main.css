@@ -83,3 +83,19 @@ body {
 
   -moz-osx-font-smoothing: grayscale;
 }
+
+.flex{
+  display: flex;
+}
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-around{
+  justify-content: space-around;
+}
