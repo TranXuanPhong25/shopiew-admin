@@ -1,176 +1,67 @@
-<template>
-  <div class="category-item-container" :style="{ marginLeft: `20px` }" >
-    <div class="category-header">
-      <n-button quaternary size="tiny" @click="collapsed = !collapsed">
-        <n-icon>
-          <CaretDown class="caret-down" :class="[!collapsed || 'caret-collapsed']" />
-        </n-icon>
-      </n-button>
-      <div v-if="editing" class="edit-container">
-        <n-input
-          v-model:value="editingName"
-          placeholder="Sửa tên..."
-          size="tiny"
-          @keydown="handleEditKeyDown"
-          autofocus
-          @blur="confirmEdit"
-        />
-      </div>
-      <div v-else class="display-container">
-        <span @dblclick="enterEditMode" class="category-name" @click="collapsed =!collapsed">{{ category.name }}</span>
-
-        <n-button @click="enterEditMode" size="tiny" quaternary>
-          <n-icon>
-            <Pencil />
-          </n-icon>
-        </n-button>
-
-        <n-button @click="showModal=true" size="tiny" class="appear-on-hover" style="display:none" type="error">
-          <n-icon>
-            <TrashBin/>
-          </n-icon>
-        </n-button>
-        <n-modal
-          v-model:show="showModal"
-          :mask-closable="false"
-          preset="dialog"
-          title="Dialog"
-          content="Are you sure?"
-          positive-text="Confirm"
-          negative-text="Cancel"
-          @positive-click="onPositiveClick"
-          @negative-click="onNegativeClick"
-        />
-      </div>
-    </div>
-
-    <div v-if="category.children && category.children.length && !collapsed">
-      <CategoryItem
-        v-for="child in category.children"
-        :key="child.id"
-        :category="child"
-        :parent="category"
-        @add-sub="handleAddSub"
-        @update-category="handleUpdateCategory"
-        @delete-category="handleDeleteCategory"
-      />
-
-    </div>
-    <n-button @click="showInput = true" size="tiny" :focusable="false" v-if="!collapsed &&!showInput" :style="{ marginLeft: `20px`,marginTop:'8px' }">
-      <n-icon>
-        <Plus/>
-      </n-icon>
-      New
-    </n-button>
-    <div v-if="showInput" class="input-container">
-      <n-input
-        v-model:value="newSubName"
-        placeholder="Nhập tên Sub..."
-        size="tiny"
-        @keydown="handleKeyDown"
-        autofocus
-      />
-      <n-button size="tiny" @click="confirmAddSub">OK</n-button>
-      <n-button size="tiny" text @click="cancelInput">Hủy</n-button>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { defineEmits, ref } from 'vue'
-import { NButton, NInput } from 'naive-ui'
+import { NButton } from 'naive-ui'
 import CategoryItem from './CategoryItem.vue'
-import { Pencil ,Plus} from '@vicons/tabler'
+import { Pencil, Plus } from '@vicons/tabler'
 import { CaretDown16Regular as CaretDown } from '@vicons/fluent'
 import { TrashBinOutline as TrashBin } from '@vicons/ionicons5'
+import type { Category } from '@/types/category.ts'
 const props = defineProps({
   category: {
-    type: Object,
+    type: Object as () => Category,
     required: true,
   },
   parent: {
-    type: Object,
+    type: Object as () => Category,
     default: null,
   },
 })
-const emit = defineEmits(['add-sub', 'update-category'])
+const emit = defineEmits([
+  'add-sub',
+  'update-category',
+  'delete-category',
+  'set-preview-category',
+  'edit-category',
+  'show-add-sub-modal',
+])
 
-const collapsed = ref(true)
+const collapsed = ref(false)
 
-// State cho thêm sub-category
-const showInput = ref(false)
-const newSubName = ref('')
-
-// State cho chế độ sửa tên (edit)
-const editing = ref(false)
-const editingName = ref(String(props.category.name))
-
-const handleEditKeyDown = (e: KeyboardEvent) => {
-  if (e.key === 'Enter') {
-    confirmEdit()
-  } else if (e.key === 'Escape') {
-    cancelEdit()
-  }
-}
-
-const confirmEdit = () => {
-  if (editingName.value.trim() !== '') {
-    // Cập nhật trực tiếp tên cho category
-    // props.category.name = editingName.value.trim()
-    // Nếu cần thông báo cho cha biết về update, bạn có thể emit event:
-    emit('update-category', { category: props.category, newName: editingName.value.trim() })
-  }
-  editing.value = false
-}
-
-const cancelEdit = () => {
-  editing.value = false
-  editingName.value = props.category.name
-}
-
+// Thay thế chức năng sửa tại chỗ bằng emit để sửa trong CategoryEdit.vue
 const enterEditMode = () => {
-  editing.value = true
-  editingName.value = props.category.name
+  emit('edit-category', { category: props.category })
 }
 
-// Xử lý thêm sub-category
-const addSub = () => {
-  if (newSubName.value.trim() !== '') {
-    emit('add-sub', { parent: props.category, newSubCategory: newSubName.value.trim() })
-  }
+// Thay thế chức năng thêm sub-category tại chỗ bằng hiển thị modal
+const showAddSubModal = () => {
+  emit('show-add-sub-modal', { parent: props.category })
+  collapsed.value = false
 }
 
-const confirmAddSub = () => {
-  addSub()
-  collapsed.value = false;
-  cancelInput()
+const deleteCategory = () => {
+  emit('delete-category', { parent: props.parent, id: props.category.id })
 }
-const cancelInput = () => {
-  showInput.value = false
-  newSubName.value = ''
-}
-const handleKeyDown = (e: KeyboardEvent) => {
-  if (e.key === 'Enter') {
-    confirmAddSub()
-  } else if (e.key === 'Escape') {
-    cancelInput()
-  }
-}
-
-const deleteCategory=()=>{
-  emit('delete-category',{parent:props.parent,id:props.category.id})
-}
-const handleDeleteCategory = (data:{ parent: Category; newName: string })=>{
-  emit('delete-category',data)
+const handleDeleteCategory = (data: { parent: Category; newName: string }) => {
+  emit('delete-category', data)
 }
 // Xử lý event add-sub từ các component con
-const handleAddSub = (data: { parent: any; newSubCategory: string }) => {
+const handleAddSub = (data: { parent: Category; newSubCategory: string }) => {
   emit('add-sub', data)
 }
 
 // Nếu cần xử lý update-category từ con
-const handleUpdateCategory = (data: { category: any; newName: string }) => {
+const handleUpdateCategory = (data: { category: Category; newName: string }) => {
   emit('update-category', data)
+}
+
+// Handle edit-category event
+const handleEditCategory = (data: { category: Category }) => {
+  emit('edit-category', data)
+}
+
+// Handle show-add-sub-modal event
+const handleShowAddSubModal = (data: { parent: Category }) => {
+  emit('show-add-sub-modal', data)
 }
 const showModal = ref(false)
 
@@ -183,19 +74,73 @@ function onNegativeClick() {
   showModal.value = false
 }
 
+function handleMouseOver(category: Category) {
+  emit('set-preview-category', { ...category })
+}
 </script>
+
+<template>
+<div class="category-item-container"
+  :style="{ marginLeft: `20px`, borderLeft: collapsed ? 'none' : '1px solid #41B883' }">
+  <div class="category-header" @mouseover="() => handleMouseOver(category)">
+    <n-button quaternary size="tiny" @click="collapsed = !collapsed">
+      <n-icon>
+        <CaretDown class="caret-down" :class="[!collapsed || 'caret-collapsed']" />
+      </n-icon>
+    </n-button>
+    <div class="display-container">
+      <span @dblclick="enterEditMode" class="category-name" @click="collapsed = !collapsed">{{
+        category.name
+      }}</span>
+
+      <n-button @click="enterEditMode" size="tiny" quaternary>
+        <n-icon>
+          <Pencil />
+        </n-icon>
+      </n-button>
+
+      <n-button @click="showModal = true" size="tiny" class="appear-on-hover" style="display: none" type="error">
+        <n-icon>
+          <TrashBin />
+        </n-icon>
+      </n-button>
+      <n-modal v-model:show="showModal" :mask-closable="false" preset="dialog" title="Dialog" content="Are you sure?"
+        positive-text="Confirm" negative-text="Cancel" @positive-click="onPositiveClick"
+        @negative-click="onNegativeClick" />
+    </div>
+  </div>
+
+  <div v-if="category.children && category.children.length && !collapsed">
+    <CategoryItem v-for="child in category.children" :key="child.id" :category="child" :parent="category"
+      @add-sub="handleAddSub" @update-category="handleUpdateCategory" @delete-category="handleDeleteCategory"
+      @edit-category="handleEditCategory" @show-add-sub-modal="handleShowAddSubModal"
+      @mouseover="() => handleMouseOver(category.children[category.children.indexOf(child)])" />
+  </div>
+  <n-button @click="showAddSubModal" size="tiny" :focusable="false" v-if="!collapsed"
+    :style="{ marginLeft: `20px`, marginTop: '8px' }">
+    <n-icon>
+      <Plus />
+    </n-icon>
+    New
+  </n-button>
+</div>
+</template>
 
 <style scoped>
 .category-item-container {
-  margin-top: 8px; /* tương đương mt-2 */
+  margin-top: 8px;
+  /* tương đương mt-2 */
 }
-.display-container:hover .appear-on-hover{
+
+.category-header:hover .appear-on-hover {
   display: block !important;
 }
+
 .category-header {
   display: flex;
   align-items: center;
-  gap: 8px; /* khoảng cách giữa các phần tử */
+  gap: 8px;
+  /* khoảng cách giữa các phần tử */
 }
 
 /* Container hiển thị tên và nút thêm */
