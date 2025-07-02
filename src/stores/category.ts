@@ -88,28 +88,7 @@ export const useCategoryStore = defineStore('category', {
          this.parentOfEditingCategory = parent;
          this.showDeleteModal = true;
       },
-      async confirmDeleteCategory(categoryId: number | string) {
-         await this.deleteProductCategory(categoryId as number);
-         if (this.error) {
-            console.error('Error deleting category:', this.error);
-            return;
-         }
-         let index
-         if (this.parentOfEditingCategory) {
-            index = this?.parentOfEditingCategory?.children.findIndex((c) => c.id == categoryId);
-            if (index !== -1) {
-               this?.parentOfEditingCategory?.children.splice(index, 1)
-            }
-         } else {
-            index = this.categories.findIndex((c) => c.id === categoryId) || -1;
-            if (index !== -1) {
-               this.categories.splice(index, 1)
-            }
-         }
-         this.parentOfEditingCategory = null;
-         this.edittingCategory = null;
-         this.showDeleteModal = false;
-      },
+
       openEditModal(category: Category | null, parentCategory: Category | null = null) {
          this.edittingCategory = category;
          this.parentOfEditingCategory = parentCategory;
@@ -180,6 +159,29 @@ export const useCategoryStore = defineStore('category', {
                this.categories[index] = category
             }
          }
+      },
+      async confirmDeleteCategory(categoryId: number | string) {
+         await this.deleteProductCategory(categoryId as number);
+         if (this.error) {
+            console.error('Error deleting category:', this.error);
+            return;
+         }
+         let index
+         if (this.parentOfEditingCategory) {
+            index = this?.parentOfEditingCategory?.children.findIndex((c) => c.id == categoryId);
+            if (index !== -1) {
+               this?.parentOfEditingCategory?.children.splice(index, 1)
+            }
+         } else {
+            index = this.categories.findIndex((c) => c.id === categoryId) || -1;
+            if (index !== -1) {
+               this.categories.splice(index, 1)
+            }
+         }
+         if (this.previewCategory?.id === categoryId) {
+            this.previewCategory = null;
+         }
+
       }
    }
 });

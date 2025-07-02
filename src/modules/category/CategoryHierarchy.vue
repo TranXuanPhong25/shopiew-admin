@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onBeforeMount } from 'vue'
 import { NButton } from 'naive-ui'
 import CategoryItem from './CategoryItem.vue'
-import CategoryPreview from '@/components/ui/category/CategoryPreview.vue'
-import CategoryEditModal from '@/components/ui/category/CategoryEditModal.vue'
-import CategoryAddSubModal from '@/components/ui/category/CategoryAddSubModal.vue'
-import CategoryAddRootModal from '@/components/ui/category/CategoryAddRootModal.vue'
+import CategoryPreview from './CategoryPreview.vue'
+import CategoryEditModal from './CategoryEditModal.vue'
+import CategoryAddSubModal from './CategoryAddSubModal.vue'
+import CategoryAddRootModal from './CategoryAddRootModal.vue'
 import { useCategoryStore } from '@/stores/category'
 
 const categoryStore = useCategoryStore()
 
-onMounted(async () => {
-  categoryStore.getProductCategoriesHierarchy()
+onBeforeMount(async () => {
+  await categoryStore.getProductCategoriesHierarchy()
 })
 
 
@@ -21,12 +21,17 @@ onMounted(async () => {
 <template>
   <div class="category-hierarchy">
     <n-h1>Category Hierarchy</n-h1>
-    <div v-for="category in categoryStore.categories" :key="category.id" :style="{ marginLeft: '-20px' }">
-      <CategoryItem :category="category" />
-    </div>
-    <n-button class="new-root-button" dashed block @click="() => categoryStore.showAddRootCategoryModal()">
-      + New root category
-    </n-button>
+    <template v-if="categoryStore.loading">
+      <p>Loading categories...</p>
+    </template>
+    <template v-else>
+      <div v-for="category in categoryStore.categories" :key="category.id" :style="{ marginLeft: '-20px' }">
+        <CategoryItem :category="category" />
+      </div>
+      <n-button class="new-root-button" dashed block @click="() => categoryStore.showAddRootCategoryModal()">
+        + New root category
+      </n-button>
+    </template>
   </div>
   <CategoryPreview />
 
