@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount } from 'vue'
+import { onMounted } from 'vue'
 import { NButton } from 'naive-ui'
 import CategoryItem from './CategoryItem.vue'
 import CategoryPreview from './CategoryPreview.vue'
@@ -7,10 +7,11 @@ import CategoryEditModal from './CategoryEditModal.vue'
 import CategoryAddSubModal from './CategoryAddSubModal.vue'
 import CategoryAddRootModal from './CategoryAddRootModal.vue'
 import { useCategoryStore } from '@/stores/category'
+import LoadingBlock from '@/components/ui/LoadingBlock.vue'
 
 const categoryStore = useCategoryStore()
 
-onBeforeMount(async () => {
+onMounted(async () => {
   await categoryStore.getProductCategoriesHierarchy()
 })
 
@@ -22,7 +23,7 @@ onBeforeMount(async () => {
   <div class="category-hierarchy">
     <n-h1>Category Hierarchy</n-h1>
     <template v-if="categoryStore.loading">
-      <p>Loading categories...</p>
+      <LoadingBlock />
     </template>
     <template v-else>
       <div v-for="category in categoryStore.categories" :key="category.id" :style="{ marginLeft: '-20px' }">

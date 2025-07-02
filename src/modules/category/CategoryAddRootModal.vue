@@ -37,7 +37,8 @@ const handleSubmit = async () => {
 }
 </script>
 
-<template><n-modal size="medium" :show="show" preset="card" title="Thêm danh mục gốc" :mask-closable="false"
+<template>
+   <n-modal :show="show" preset="card" title="Thêm danh mục gốc" :mask-closable="false" :style="{ width: '500px' }"
       @close="categoryStorage.closeAddRootCategoryModal">
       <n-form label-placement="left" label-width="100px">
          <n-form-item label="Tên danh mục">
@@ -53,7 +54,8 @@ const handleSubmit = async () => {
             <n-button type="primary" @click="handleSubmit">Thêm</n-button>
          </div>
       </n-form>
-   </n-modal></template>
+   </n-modal>
+</template>
 
 <style scoped>
 .action-buttons {

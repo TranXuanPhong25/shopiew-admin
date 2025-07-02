@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { NModal, NForm, NFormItem, NInput, NButton, useMessage } from 'naive-ui'
 import type { Category } from '@/models/category.ts'
 import { useCategoryStore } from '@/stores/category'
+import ImageUpload from '@/components/ImageUpload.vue'
 
 const props = defineProps({
    show: {
@@ -59,21 +60,23 @@ const handleSubmit = async () => {
 }
 </script>
 
-<template><n-modal :show="show" preset="card" title="Chỉnh sửa danh mục" :mask-closable="false"
+<template>
+   <n-modal :show="show" preset="card" title="Chỉnh sửa danh mục" :mask-closable="false" :style="{ width: '500px' }"
       @close="categoryStore.closeEditModal">
       <n-form v-if="category" label-placement="left" label-width="100px">
          <n-form-item label="Tên danh mục">
             <n-input v-model:value="formData.name" placeholder="Nhập tên danh mục" />
          </n-form-item>
          <n-form-item label="Ảnh">
-            <n-input v-model:value="formData.imageUrl" placeholder="URL ảnh danh mục" />
+            <ImageUpload />
          </n-form-item>
          <div class="action-buttons">
             <n-button @click="categoryStore.closeEditModal">Hủy</n-button>
             <n-button type="primary" @click="handleSubmit">Lưu</n-button>
          </div>
       </n-form>
-   </n-modal></template>
+   </n-modal>
+</template>
 
 <style scoped>
 .action-buttons {

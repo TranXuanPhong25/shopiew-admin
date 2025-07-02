@@ -59,8 +59,9 @@ const handleSubmit = async () => {
 }
 </script>
 
-<template><n-modal style="width: 600px" class="category-add-sub-modal" :show="show" title="Thêm danh mục con"
-      preset="card" :mask-closable="false" @close="categoryStore.closeAddSubCategoryModal">
+<template>
+   <n-modal style="width: 600px" class="category-add-sub-modal" :show="show" title="Thêm danh mục con"
+      :style="{ width: '500px' }" preset="card" :mask-closable="false" @close="categoryStore.closeAddSubCategoryModal">
       <n-form v-if="parentCategory" label-placement="left" label-width="100px">
          <p class="parent-info">
             Thêm vào danh mục: <strong>{{ parentCategory.name }}</strong>
@@ -79,7 +80,8 @@ const handleSubmit = async () => {
             <n-button type="primary" @click="handleSubmit">Lưu</n-button>
          </div>
       </n-form>
-   </n-modal></template>
+   </n-modal>
+</template>
 
 <style scoped>
 .action-buttons {
