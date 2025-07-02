@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { NModal, NForm, NFormItem, NInput, NButton, useMessage } from 'naive-ui'
-import type { Category } from '@/types/category.ts'
+import { Category } from '@/models/category.ts'
+import { useCategoryStore } from '@/stores/category'
 
 const props = defineProps({
    show: {
@@ -14,8 +15,7 @@ const props = defineProps({
    },
 })
 
-const emit = defineEmits(['update:show', 'add-sub'])
-
+const categoryStore = useCategoryStore()
 const formData = ref({
    name: '',
    imageUrl: '/logo.svg', // Default image URL
@@ -34,56 +34,52 @@ watch(
    { immediate: true },
 )
 
-// Close the modal
-const handleClose = () => {
-   emit('update:show', false)
-}
 
 // Submit the form
-const handleSubmit = () => {
+const handleSubmit = async () => {
    if (!formData.value.name.trim()) {
       message.error('Tên danh mục không được để trống')
       return
    }
 
-   if (!props.parentCategory) {
+   if (!props.parentCategory || !props.parentCategory.id) {
       message.error('Không tìm thấy danh mục cha')
       return
    }
 
-   // Emit add-sub event with parent and new sub-category data
-   emit('add-sub', {
-      parent: props.parentCategory,
-      newSubCategory: formData.value.name.trim(),
+
+   await categoryStore.addSubCategory({
+      name: formData.value.name.trim(),
       imageUrl: formData.value.imageUrl.trim(),
    })
-
+   formData.value.name = '' // Reset the name field after submission
+   formData.value.imageUrl = '/logo.svg' // Reset the image URL to default
    // Close the modal
-   handleClose()
+   categoryStore.closeAddSubCategoryModal()
 }
 </script>
 
 <template><n-modal style="width: 600px" class="category-add-sub-modal" :show="show" title="Thêm danh mục con"
-   :mask-closable="false" @close="handleClose">
-   <n-form v-if="parentCategory" label-placement="left" label-width="100px">
-      <p class="parent-info">
-         Thêm vào danh mục: <strong>{{ parentCategory.name }}</strong>
-      </p>
+      preset="card" :mask-closable="false" @close="categoryStore.closeAddSubCategoryModal">
+      <n-form v-if="parentCategory" label-placement="left" label-width="100px">
+         <p class="parent-info">
+            Thêm vào danh mục: <strong>{{ parentCategory.name }}</strong>
+         </p>
 
-      <n-form-item label="Tên danh mục">
-         <n-input v-model:value="formData.name" placeholder="Nhập tên danh mục con" />
-      </n-form-item>
+         <n-form-item label="Tên danh mục">
+            <n-input v-model:value="formData.name" placeholder="Nhập tên danh mục con" />
+         </n-form-item>
 
-      <n-form-item label="Ảnh">
-         <n-input v-model:value="formData.imageUrl" placeholder="URL ảnh danh mục" />
-      </n-form-item>
+         <n-form-item label="Ảnh">
+            <n-input v-model:value="formData.imageUrl" placeholder="URL ảnh danh mục" />
+         </n-form-item>
 
-      <div class="action-buttons">
-         <n-button @click="handleClose">Hủy</n-button>
-         <n-button type="primary" @click="handleSubmit">Lưu</n-button>
-      </div>
-   </n-form>
-</n-modal></template>
+         <div class="action-buttons">
+            <n-button @click="categoryStore.closeAddSubCategoryModal">Hủy</n-button>
+            <n-button type="primary" @click="handleSubmit">Lưu</n-button>
+         </div>
+      </n-form>
+   </n-modal></template>
 
 <style scoped>
 .action-buttons {

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { NModal, NForm, NFormItem, NInput, NButton, useMessage } from 'naive-ui'
-import type { Category } from '@/types/category.ts'
+import type { Category } from '@/models/category.ts'
+import { useCategoryStore } from '@/stores/category'
 
 const props = defineProps({
    show: {
@@ -14,8 +15,7 @@ const props = defineProps({
    },
 })
 
-const emit = defineEmits(['update:show', 'update'])
-
+const categoryStore = useCategoryStore()
 const formData = ref({
    name: '',
    imageUrl: '',
@@ -35,13 +35,9 @@ watch(
    { immediate: true },
 )
 
-// Close the modal
-const handleClose = () => {
-   emit('update:show', false)
-}
 
 // Submit the form
-const handleSubmit = () => {
+const handleSubmit = async () => {
    if (!formData.value.name.trim()) {
       message.error('Tên danh mục không được để trống')
       return
@@ -53,31 +49,31 @@ const handleSubmit = () => {
    }
 
    // Emit update event with category and updated data
-   emit('update', {
-      category: props.category,
-      newName: formData.value.name.trim(),
-      newImageUrl: formData.value.imageUrl.trim(),
+   await categoryStore.updateCategory({
+      ...props.category,
+      name: formData.value.name.trim(),
+      imageUrl: formData.value.imageUrl.trim(),
    })
 
-   // Close the modal
-   handleClose()
+   categoryStore.closeEditModal()
 }
 </script>
 
-<template><n-modal :show="show" preset="card" title="Chỉnh sửa danh mục" :mask-closable="false" @close="handleClose">
-   <n-form v-if="category" label-placement="left" label-width="100px">
-      <n-form-item label="Tên danh mục">
-         <n-input v-model:value="formData.name" placeholder="Nhập tên danh mục" />
-      </n-form-item>
-      <n-form-item label="Ảnh">
-         <n-input v-model:value="formData.imageUrl" placeholder="URL ảnh danh mục" />
-      </n-form-item>
-      <div class="action-buttons">
-         <n-button @click="handleClose">Hủy</n-button>
-         <n-button type="primary" @click="handleSubmit">Lưu</n-button>
-      </div>
-   </n-form>
-</n-modal></template>
+<template><n-modal :show="show" preset="card" title="Chỉnh sửa danh mục" :mask-closable="false"
+      @close="categoryStore.closeEditModal">
+      <n-form v-if="category" label-placement="left" label-width="100px">
+         <n-form-item label="Tên danh mục">
+            <n-input v-model:value="formData.name" placeholder="Nhập tên danh mục" />
+         </n-form-item>
+         <n-form-item label="Ảnh">
+            <n-input v-model:value="formData.imageUrl" placeholder="URL ảnh danh mục" />
+         </n-form-item>
+         <div class="action-buttons">
+            <n-button @click="categoryStore.closeEditModal">Hủy</n-button>
+            <n-button type="primary" @click="handleSubmit">Lưu</n-button>
+         </div>
+      </n-form>
+   </n-modal></template>
 
 <style scoped>
 .action-buttons {

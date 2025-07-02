@@ -17,7 +17,6 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@tanstack/vue-query": "^5.68.0",
     "axios": "^1.10.0",
     "naive-ui": "^2.41.0",
     "pinia": "^3.0.1",
