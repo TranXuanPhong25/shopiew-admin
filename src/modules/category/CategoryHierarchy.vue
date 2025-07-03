@@ -6,6 +6,7 @@ import CategoryPreview from './CategoryPreview.vue'
 import CategoryEditModal from './CategoryEditModal.vue'
 import CategoryAddSubModal from './CategoryAddSubModal.vue'
 import CategoryAddRootModal from './CategoryAddRootModal.vue'
+import DeleteCategoryModal from './DeleteCategoryModal.vue'
 import { useCategoryStore } from '@/stores/category'
 import LoadingBlock from '@/components/ui/LoadingBlock.vue'
 
@@ -41,6 +42,8 @@ onMounted(async () => {
   <CategoryAddSubModal :show="categoryStore.showAddSubModal" :parentCategory="categoryStore.parentOfEditingCategory" />
 
   <CategoryAddRootModal :show="categoryStore.showAddRootModal" />
+
+  <DeleteCategoryModal />
 </template>
 
 <style scoped>

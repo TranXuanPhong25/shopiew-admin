@@ -42,16 +42,12 @@ const collapsed = ref(false)
           </n-icon>
         </n-button>
 
-        <n-button @click="() => categoryStore.openDeleteCategoryModal(parent)" size="tiny" class="appear-on-hover"
-          style="display: none" type="error">
+        <n-button @click="() => categoryStore.openDeleteCategoryModal(parent, category.id!)" size="tiny"
+          class="appear-on-hover" style="display: none" type="error">
           <n-icon>
             <TrashBin />
           </n-icon>
         </n-button>
-        <n-modal v-model:show="categoryStore.showDeleteModal" :mask-closable="false" preset="dialog" title="Dialog"
-          content="Are you sure?" positive-text="Confirm" negative-text="Cancel"
-          @positive-click="() => categoryStore.confirmDeleteCategory(category.id!)"
-          @negative-click="categoryStore.cancelDeleteCategory" />
       </div>
     </div>
 

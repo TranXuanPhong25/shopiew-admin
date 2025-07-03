@@ -17,7 +17,9 @@ export const useCategoryStore = defineStore('category', {
       showAddRootModal: false,
       showAddSubModal: false,
       showDeleteModal: false,
+      isDeleting: false,
 
+      deleteProductCategoryId: null as number | string | null,
       parentOfEditingCategory: null as Category | null,
       edittingCategory: null as Category | null,
    }),
@@ -84,7 +86,8 @@ export const useCategoryStore = defineStore('category', {
       cancelDeleteCategory() {
          this.showDeleteModal = false;
       },
-      openDeleteCategoryModal(parent: Category | null = null) {
+      openDeleteCategoryModal(parent: Category | null, categoryId: number | string) {
+         this.deleteProductCategoryId = categoryId;
          this.parentOfEditingCategory = parent;
          this.showDeleteModal = true;
       },
@@ -160,28 +163,35 @@ export const useCategoryStore = defineStore('category', {
             }
          }
       },
-      async confirmDeleteCategory(categoryId: number | string) {
-         await this.deleteProductCategory(categoryId as number);
-         if (this.error) {
-            console.error('Error deleting category:', this.error);
-            return;
-         }
-         let index
-         if (this.parentOfEditingCategory) {
-            index = this?.parentOfEditingCategory?.children.findIndex((c) => c.id == categoryId);
-            if (index !== -1) {
-               this?.parentOfEditingCategory?.children.splice(index, 1)
+      async confirmDeleteCategory() {
+         this.isDeleting = true;
+         try {
+            const categoryId = this.deleteProductCategoryId;
+            await this.deleteProductCategory(categoryId as number);
+            if (this.error) {
+               console.error('Error deleting category:', this.error);
+               return;
             }
-         } else {
-            index = this.categories.findIndex((c) => c.id === categoryId) || -1;
-            if (index !== -1) {
-               this.categories.splice(index, 1)
+            let index
+            if (this.parentOfEditingCategory) {
+               index = this?.parentOfEditingCategory?.children.findIndex((c) => c.id == categoryId);
+               if (index !== -1) {
+                  this?.parentOfEditingCategory?.children.splice(index, 1)
+               }
+            } else {
+               index = this.categories.findIndex((c) => c.id === categoryId) || -1;
+               if (index !== -1) {
+                  this.categories.splice(index, 1)
+               }
             }
+            if (this.previewCategory?.id === categoryId) {
+               this.previewCategory = null;
+            }
+            this.deleteProductCategoryId = null;
+            this.showDeleteModal = false;
+         } finally {
+            this.isDeleting = false;
          }
-         if (this.previewCategory?.id === categoryId) {
-            this.previewCategory = null;
-         }
-
       }
    }
 });
